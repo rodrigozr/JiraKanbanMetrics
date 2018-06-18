@@ -6,7 +6,7 @@ namespace JiraKanbanMetrics.Core
     /// <summary>
     /// Extension methods for DateTime
     /// </summary>
-    public static class DateTimeExtensions
+    internal static class DateTimeExtensions
     {
         private static readonly Calendar Calendar = (DateTimeFormatInfo.CurrentInfo ?? DateTimeFormatInfo.InvariantInfo).Calendar;
 

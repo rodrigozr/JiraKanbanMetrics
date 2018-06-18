@@ -7,7 +7,7 @@ namespace JiraKanbanMetrics.Core
     /// <summary>
     /// Extension methods for LINQ enumerables
     /// </summary>
-    public static class LinqExtensions
+    internal static class LinqExtensions
     {
         /// <summary>
         /// Retrives paged items from an enumerable

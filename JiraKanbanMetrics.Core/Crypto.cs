@@ -9,7 +9,7 @@ namespace JiraKanbanMetrics.Core
     /// <summary>
     /// Very simple encryption mechanism
     /// </summary>
-    static class Crypto
+    internal static class Crypto
     {
         // Super-secure keys
         // Yes, I know this is not high security.
