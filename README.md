@@ -8,6 +8,7 @@ Extract Kanban metrics from Jira Agile boards using the REST API
    * [Quick start step-by-step](#quick-start-step-by-step)
    * [Sample generated charts](#sample-generated-charts)
    * [Configuration File](#configuration-file)
+   * [Command-line options](#command-line-options)
 
 # Quick start step-by-step
 ## Step 1: Generate a configuration file
@@ -133,3 +134,65 @@ The configuration file used by JiraKanbanMetrics.exe contains the following opti
   
     Number of months back in time to consider when analysing data.
     **Default: 5**
+
+# Command-line options
+
+**help:**
+```
+JiraKanbanMetrics.exe help
+JiraKanbanMetrics 1.0.0.0
+Copyright c 2018 Rodrigo Zechin Rosauro
+
+  configure    Creates or updates a configuration file
+
+  generate     Generates metrics
+
+  help         Display more information on a specific command.
+
+  version      Display version information.
+```
+
+**configure:**
+```
+JiraKanbanMetrics.exe help configure
+JiraKanbanMetrics 1.0.0.0
+Copyright c 2018 Rodrigo Zechin Rosauro
+
+  --ConfigFile                 Required. Configuration file path
+
+  --JiraUsername               Jira User name (when not set: ask every time)
+
+  --NoStorePassword            Indicates that an an encrypted password should NOT be stored in the configuration file or not. The password will be requested
+                               every time
+
+  --JiraInstanceBaseAddress    Base URL for your Jira instance
+
+  --BoardId                    Jira Kanban Board ID
+
+  --help                       Display this help screen.
+
+  --version                    Display version information.
+```
+
+**generate:**
+```
+JiraKanbanMetrics.exe help generate
+JiraKanbanMetrics 1.0.0.0
+Copyright c 2018 Rodrigo Zechin Rosauro
+
+  --ConfigFile      Required. Configuration file path
+
+  --BoardId         Jira Kanban Board ID (when set, overrides the one in the configuration file)
+
+  --NoCache         Disables local disk caching of Jira data
+
+  --CacheHours      (Default: 2) Number of hours to keep cached data on disk
+
+  --ChartsWidth     (Default: 1240) Width of the charts, in pixels
+
+  --ChartsHeight    (Default: 780) Height of the charts, in pixels
+
+  --help            Display this help screen.
+
+  --version         Display version information.
+```
