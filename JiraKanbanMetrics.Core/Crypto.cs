@@ -1,4 +1,7 @@
-﻿using System;
+﻿//
+// Copyright (c) 2018 Rodrigo Zechin Rosauro
+//
+using System;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Security.Cryptography;

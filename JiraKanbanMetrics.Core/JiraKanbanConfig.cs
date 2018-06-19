@@ -1,4 +1,7 @@
-﻿using System.Linq;
+﻿//
+// Copyright (c) 2018 Rodrigo Zechin Rosauro
+//
+using System.Linq;
 using System.Security;
 using System.Xml.Linq;
 
@@ -118,17 +121,26 @@ namespace JiraKanbanMetrics.Core
                 JiraUsername = xml.Element("JiraUsername")?.Value,
                 JiraPassword = ParsePassword(xml.Element("JiraPassword")?.Value),
                 BoardId = int.Parse(xml.Element("BoardId")?.Value ?? "0"),
-                QuickFilters = (xml.Element("QuickFilters")?.Value ?? "").Split(',').Where(_ => _.Length > 0).Select(int.Parse).ToArray(),
-                DefectIssueTypes = (xml.Element("DefectIssueTypes")?.Value ?? "Defect").Split(','),
-                IgnoredIssueTypes = (xml.Element("IgnoredIssueTypes")?.Value ?? "").Split(','),
-                IgnoredIssueKeys = (xml.Element("IgnoredIssueKeys")?.Value ?? "").Split(','),
-                QueueColumns = (xml.Element("QueueColumns")?.Value ?? "To Do").Split(','),
-                CommitmentStartColumns = (xml.Element("CommitmentStartColumns")?.Value ?? "To Do").Split(','),
-                InProgressStartColumns = (xml.Element("InProgressStartColumns")?.Value ?? "In Progress").Split(','),
-                DoneColumns = (xml.Element("DoneColumns")?.Value ?? "Done").Split(','),
+                QuickFilters = ParseCommaSeparated(xml.Element("QuickFilters")?.Value).Select(int.Parse).ToArray(),
+                DefectIssueTypes = ParseCommaSeparated(xml.Element("DefectIssueTypes")?.Value, "Defect"),
+                IgnoredIssueTypes = ParseCommaSeparated(xml.Element("IgnoredIssueTypes")?.Value),
+                IgnoredIssueKeys = ParseCommaSeparated(xml.Element("IgnoredIssueKeys")?.Value),
+                QueueColumns = ParseCommaSeparated(xml.Element("QueueColumns")?.Value, "To Do"),
+                CommitmentStartColumns = ParseCommaSeparated(xml.Element("CommitmentStartColumns")?.Value, "To Do"),
+                InProgressStartColumns = ParseCommaSeparated(xml.Element("InProgressStartColumns")?.Value, "In Progress"),
+                DoneColumns = ParseCommaSeparated(xml.Element("DoneColumns")?.Value, "Done"),
                 BacklogColumnName = xml.Element("BacklogColumnName")?.Value ?? "Backlog",
                 MonthsToAnalyse = int.Parse(xml.Element("MonthsToAnalyse")?.Value ?? "5"),
             };
+        }
+
+        private static string[] ParseCommaSeparated(string value, string @default = "")
+        {
+            return (value ?? @default ?? "")
+                .Split(',')
+                .Select(_ => _.Trim())
+                .Where(_ => !string.IsNullOrWhiteSpace(_))
+                .ToArray();
         }
 
         private static SecureString ParsePassword(string pw)

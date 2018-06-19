@@ -1,4 +1,7 @@
-﻿using System;
+﻿//
+// Copyright (c) 2018 Rodrigo Zechin Rosauro
+//
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Dynamic;
@@ -13,16 +16,59 @@ namespace JiraKanbanMetrics.Core
     /// </summary>
     public class KanbanCharts
     {
+        /// <summary>
+        /// Configuration used to create the charts
+        /// </summary>
         public JiraKanbanConfig Config { get; set; }
+
+        /// <summary>
+        /// Issue metrics used to create the charts
+        /// </summary>
         public Issue[] Issues { get; set; }
+        
+        /// <summary>
+        /// List of issues that have reached the "Done" state
+        /// </summary>
         public DoneIssue[] DoneIssues { get; set; }
+        
+        /// <summary>
+        /// Start date for the charts
+        /// </summary>
         public DateTime StartDate { get; set; }
+        
+        /// <summary>
+        /// End date for the charts
+        /// </summary>
         public DateTime EndDate { get; set; }
+        
+        /// <summary>
+        /// Chart - Flow efficiency (queue time vs touch time)
+        /// </summary>
         public Chart FlowEfficiencyChart { get; set; }
+        
+        /// <summary>
+        /// Chart - Lead time histogram
+        /// </summary>
         public Chart LeadTimeHistogramChart { get; set; }
+        
+        /// <summary>
+        /// Chart - Weekly throughput histogram
+        /// </summary>
         public Chart WeeklyThroughputHistogramChart { get; set; }
+        
+        /// <summary>
+        /// Chart - Weekly throughput
+        /// </summary>
         public Chart WeeklyThroughputChart { get; set; }
+        
+        /// <summary>
+        /// Chart - Lead time control
+        /// </summary>
         public Chart LeadTimeControlChart { get; set; }
+        
+        /// <summary>
+        /// Chart - CFD
+        /// </summary>
         public Chart CummulativeFlowDiagramChart { get; set; }
 
         /// <summary>
@@ -119,8 +165,8 @@ namespace JiraKanbanMetrics.Core
             var leadHistogram = buckets.Select(bucket => new
                 {
                     LeadTime = $"{bucket.Start}-{bucket.End}",
-                    Qty = DoneIssues.Where(ticket => ticket.LeadTime >= bucket.Start && ticket.LeadTime <= bucket.End).Count(ticket => ticket.IssueType != "Defect" && ticket.IssueType != "Issue"),
-                    QtyIssues = DoneIssues.Where(ticket => ticket.LeadTime >= bucket.Start && ticket.LeadTime <= bucket.End).Count(ticket => ticket.IssueType == "Defect" || ticket.IssueType == "Issue"),
+                    Qty = DoneIssues.Where(ticket => ticket.LeadTime >= bucket.Start && ticket.LeadTime <= bucket.End).Count(ticket => !ticket.IssueType.IsDefect(Config)),
+                    QtyDefects = DoneIssues.Where(ticket => ticket.LeadTime >= bucket.Start && ticket.LeadTime <= bucket.End).Count(ticket => ticket.IssueType.IsDefect(Config)),
                 })
                 .ToList();
             {
@@ -134,7 +180,7 @@ namespace JiraKanbanMetrics.Core
                 series.LegendText = "Tasks";
                 chart.Series.Add(series);
                 series = new Series {ChartType = SeriesChartType.Column};
-                series.Points.DataBindXY(leadHistogram.Select(_ => _.LeadTime).ToArray(), leadHistogram.Select(_ => _.QtyIssues).ToArray());
+                series.Points.DataBindXY(leadHistogram.Select(_ => _.LeadTime).ToArray(), leadHistogram.Select(_ => _.QtyDefects).ToArray());
                 series.Legend = "legend";
                 series.LegendText = "Defects";
                 series.Color = Color.Red;
@@ -142,7 +188,7 @@ namespace JiraKanbanMetrics.Core
                 chartArea.AxisX.Interval = 1;
                 chartArea.AxisX.LabelStyle.Angle = -65;
                 chartArea.AxisY.IntervalAutoMode = IntervalAutoMode.VariableCount;
-                LeadTimeControlChart = chart;
+                LeadTimeHistogramChart = chart;
             }
 
         }
@@ -274,7 +320,7 @@ namespace JiraKanbanMetrics.Core
                         });
                     series.CustomProperties = "IsXAxisQuantitative=True";
                     series.Legend = "legend";
-                    series.LegendText = "Issues";
+                    series.LegendText = "Defects";
                     series.Color = Color.Red;
                     chart.Series.Add(series);
                 }
