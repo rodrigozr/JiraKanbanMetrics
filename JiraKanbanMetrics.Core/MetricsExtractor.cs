@@ -25,19 +25,22 @@ namespace JiraKanbanMetrics.Core
     public class MetricsExtractor : IDisposable
     {
         private readonly JiraKanbanConfig _config;
+        private readonly Action<string> _logCallback;
         private HttpClient _client;
 
         /// <summary>
         /// Creates a new metrics extractor for the given Kanban configuration
         /// </summary>
         /// <param name="config">configuration to use</param>
-        public MetricsExtractor(JiraKanbanConfig config)
+        /// <param name="logCallback">optional callback delegate to receive log messages</param>
+        public MetricsExtractor(JiraKanbanConfig config, Action<string> logCallback = null)
         {
             if (config == null) throw new ArgumentNullException(nameof(config));
             if (string.IsNullOrWhiteSpace(config.JiraInstanceBaseAddress)) throw new ArgumentNullException(nameof(config.JiraInstanceBaseAddress));
             if (string.IsNullOrWhiteSpace(config.JiraUsername)) throw new ArgumentNullException(nameof(config.JiraUsername));
             if (config.JiraPassword == null || config.JiraPassword.Length == 0) throw new ArgumentNullException(nameof(config.JiraPassword));
             _config = config;
+            _logCallback = logCallback;
 
             _client = new HttpClient
             {
@@ -58,12 +61,13 @@ namespace JiraKanbanMetrics.Core
         {
             quickFilters = quickFilters ?? new int[0];
             var filters = quickFilters.Length == 0 ? "" : string.Join("&activeQuickFilters=", new[] { "" }.Concat(quickFilters.Select(_ => _.ToString())));
-            var res = await _client.GetAsync($"rest/greenhopper/1.0/xboard/work/allData.json?rapidViewId={boardId}{filters}");
-            var responseBody = await res.Content.ReadAsStringAsync();
+            _logCallback?.Invoke($"Connecting to Jira: {_config.JiraInstanceBaseAddress}");
+            var res = await _client.GetAsync($"rest/greenhopper/1.0/xboard/work/allData.json?rapidViewId={boardId}{filters}").ConfigureAwait(false);
+            var responseBody = await res.Content.ReadAsStringAsync().ConfigureAwait(false);
             res.EnsureSuccessStatusCode();
             var json = JObject.Parse(responseBody);
 
-            var issues = await GetIssues(json);
+            var issues = await GetIssues(json).ConfigureAwait(false);
             // Filter ignored types and ignored issues
             issues = issues
                 .Where(issue => !_config.IgnoredIssueKeys.Any(key => issue.IssueKey.EqualsIgnoreCase(key)))
@@ -125,18 +129,20 @@ namespace JiraKanbanMetrics.Core
             var boardColumns = GetAllColumnsStatusIds(json);
 
             var issueKeys = json["issuesData"]["issues"].Select(issue => (string)issue["key"]).OrderBy(_ => _).ToList();
-            //Console.WriteLine($"Analysing {issueKeys.Count} issues...");
+            _logCallback?.Invoke($"Analysing {issueKeys.Count} issues...");
             var pageSize = 100;
             var pagedKeys = issueKeys.Paged(pageSize);
             var result = new List<Issue>();
+            int retrievedQty = 0;
             foreach (var keys in pagedKeys)
             {
                 var keysJql = string.Join(",", keys);
-                var res = await _client.GetAsync($"rest/api/2/search?jql=key%20in%20({keysJql})&expand=changelog&fields=issuetype,created&maxResults={pageSize}");
-                var responseBody = await res.Content.ReadAsStringAsync();
+                var res = await _client.GetAsync($"rest/api/2/search?jql=key%20in%20({keysJql})&expand=changelog&fields=issuetype,created&maxResults={pageSize}").ConfigureAwait(false);
+                var responseBody = await res.Content.ReadAsStringAsync().ConfigureAwait(false);
                 res.EnsureSuccessStatusCode();
                 var issuesJson = JObject.Parse(responseBody);
-                //Console.WriteLine($"Retrieved details for {issuesJson["issues"].Count()} issues...");
+                retrievedQty += issuesJson["issues"].Count();
+                _logCallback?.Invoke($"Retrieved details for {retrievedQty} issues...");
                 result.AddRange(issuesJson["issues"]
                     .Select(issue => new Issue
                     {
@@ -146,6 +152,7 @@ namespace JiraKanbanMetrics.Core
                         Columns = GetIssueColumns((JObject)issue, boardColumns),
                     }));
             }
+            _logCallback?.Invoke($"Processing retrieved data...");
             return result;
         }
 

@@ -1,4 +1,5 @@
-﻿using System.Security;
+﻿using System.Linq;
+using System.Security;
 using System.Xml.Linq;
 
 namespace JiraKanbanMetrics.Core
@@ -22,6 +23,16 @@ namespace JiraKanbanMetrics.Core
         /// Password for Jira authentication
         /// </summary>
         public SecureString JiraPassword { get; set; }
+
+        /// <summary>
+        /// Jira Kanban board ID
+        /// </summary>
+        public int BoardId { get; set; }
+
+        /// <summary>
+        /// Jira quick filters
+        /// </summary>
+        public int[] QuickFilters { get; set; }
 
         /// <summary>
         /// Types of issues to consider as defects
@@ -64,15 +75,22 @@ namespace JiraKanbanMetrics.Core
         public string BacklogColumnName { get; set; } = "Backlog";
 
         /// <summary>
+        /// Number of months to analyse metrics
+        /// </summary>
+        public int MonthsToAnalyse { get; set; } = 5;
+
+        /// <summary>
         /// Serializes this configuration to XML, using an encrypted password
         /// </summary>
         /// <returns>the XML</returns>
         public XElement ToXml()
         {
             return new XElement("JiraKanbanConfig",
-                new XElement("JiraInstanceBaseAddress", JiraInstanceBaseAddress),
-                new XElement("JiraUsername", JiraUsername),
-                new XElement("JiraPassword", Crypto.Encrypt(JiraPassword)),
+                new XElement("JiraInstanceBaseAddress", JiraInstanceBaseAddress ?? ""),
+                new XElement("JiraUsername", JiraUsername ?? ""),
+                new XElement("JiraPassword", JiraPassword != null ? Crypto.Encrypt(JiraPassword) : ""),
+                new XElement("BoardId", BoardId > 0 ? BoardId.ToString() : ""),
+                new XElement("QuickFilters", QuickFilters != null ? string.Join(",", QuickFilters) : ""),
                 new XElement("DefectIssueTypes", string.Join(",", DefectIssueTypes)),
                 new XElement("IgnoredIssueTypes", string.Join(",", IgnoredIssueTypes)),
                 new XElement("IgnoredIssueKeys", string.Join(",", IgnoredIssueKeys)),
@@ -81,6 +99,7 @@ namespace JiraKanbanMetrics.Core
                 new XElement("InProgressStartColumns", string.Join(",", InProgressStartColumns)),
                 new XElement("DoneColumns", string.Join(",", DoneColumns)),
                 new XElement("BacklogColumnName", BacklogColumnName),
+                new XElement("MonthsToAnalyse", MonthsToAnalyse),
                 null
             );
         }
@@ -97,7 +116,9 @@ namespace JiraKanbanMetrics.Core
             {
                 JiraInstanceBaseAddress = xml.Element("JiraInstanceBaseAddress")?.Value,
                 JiraUsername = xml.Element("JiraUsername")?.Value,
-                JiraPassword = Crypto.Decrypt(xml.Element("JiraPassword")?.Value),
+                JiraPassword = ParsePassword(xml.Element("JiraPassword")?.Value),
+                BoardId = int.Parse(xml.Element("BoardId")?.Value ?? "0"),
+                QuickFilters = (xml.Element("QuickFilters")?.Value ?? "").Split(',').Where(_ => _.Length > 0).Select(int.Parse).ToArray(),
                 DefectIssueTypes = (xml.Element("DefectIssueTypes")?.Value ?? "Defect").Split(','),
                 IgnoredIssueTypes = (xml.Element("IgnoredIssueTypes")?.Value ?? "").Split(','),
                 IgnoredIssueKeys = (xml.Element("IgnoredIssueKeys")?.Value ?? "").Split(','),
@@ -106,7 +127,13 @@ namespace JiraKanbanMetrics.Core
                 InProgressStartColumns = (xml.Element("InProgressStartColumns")?.Value ?? "In Progress").Split(','),
                 DoneColumns = (xml.Element("DoneColumns")?.Value ?? "Done").Split(','),
                 BacklogColumnName = xml.Element("BacklogColumnName")?.Value ?? "Backlog",
+                MonthsToAnalyse = int.Parse(xml.Element("MonthsToAnalyse")?.Value ?? "5"),
             };
+        }
+
+        private static SecureString ParsePassword(string pw)
+        {
+            return string.IsNullOrWhiteSpace(pw) ? null : Crypto.Decrypt(pw);
         }
 
     }

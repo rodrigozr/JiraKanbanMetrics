@@ -37,7 +37,7 @@ namespace JiraKanbanMetrics.Core
             {
                 Config = config,
                 Issues = issues,
-                StartDate = DateTime.Today.AddMonths(-5),
+                StartDate = DateTime.Today.AddMonths(config.MonthsToAnalyse * -1),
                 EndDate = DateTime.Today.AddDays((int)DateTime.Today.DayOfWeek * -1),
             };
 
@@ -105,7 +105,8 @@ namespace JiraKanbanMetrics.Core
                 chartArea.AxisY.Title = "Flow efficiency %";
                 chartArea.AxisY.Maximum = 100;
 
-                chartArea.AxisY.StripLines.Add(CreateStripLine(flowEfficiency.Average(_ => _.FlowEfficiency),
+                var average = flowEfficiency.Count > 0 ? flowEfficiency.Average(_ => _.FlowEfficiency) : 0;
+                chartArea.AxisY.StripLines.Add(CreateStripLine(average,
                     Color.Blue));
                 FlowEfficiencyChart = chart;
             }
@@ -113,7 +114,7 @@ namespace JiraKanbanMetrics.Core
 
         private void ComputeLeadTimeHistogram()
         {
-            var maxLeadTime = DoneIssues.Max(_ => _.LeadTime);
+            var maxLeadTime = DoneIssues.Length > 0 ? DoneIssues.Max(_ => _.LeadTime) : 0;
             var buckets = Enumerable.Range(0, maxLeadTime + 1).Paged(3).Select(_ => new { Start = _.First(), End = _.Last() }).ToList();
             var leadHistogram = buckets.Select(bucket => new
                 {
@@ -136,7 +137,7 @@ namespace JiraKanbanMetrics.Core
                 series.Points.DataBindXY(leadHistogram.Select(_ => _.LeadTime).ToArray(), leadHistogram.Select(_ => _.QtyIssues).ToArray());
                 series.Legend = "legend";
                 series.LegendText = "Defects";
-                series.Color = System.Drawing.Color.Red;
+                series.Color = Color.Red;
                 chart.Series.Add(series);
                 chartArea.AxisX.Interval = 1;
                 chartArea.AxisX.LabelStyle.Angle = -65;
@@ -167,7 +168,7 @@ namespace JiraKanbanMetrics.Core
                 })
                 .OrderBy(_ => _.Week)
                 .ToList();
-            var maxThroughput = throughput.Max(_ => _.Throughput);
+            var maxThroughput = throughput.Count > 0 ? throughput.Max(_ => _.Throughput) : 0;
             var buckets = Enumerable.Range(0, maxThroughput + 1).Paged(4)
                 .Select(_ => new {Start = _.First(), End = _.Last()}).ToList();
             var throughputHistogram = buckets.Select(bucket => new
@@ -217,7 +218,8 @@ namespace JiraKanbanMetrics.Core
                 chartArea.AxisX.LabelStyle.Angle = -65;
                 chartArea.AxisY.IntervalAutoMode = IntervalAutoMode.VariableCount;
 
-                chartArea.AxisY.StripLines.Add(CreateStripLine(throughput.Average(_ => _.Throughput), Color.Blue));
+                var average = throughput.Count > 0 ? throughput.Average(_ => _.Throughput) : 0;
+                chartArea.AxisY.StripLines.Add(CreateStripLine(average, Color.Blue));
                 WeeklyThroughputChart = chart;
             }
         }
@@ -236,8 +238,9 @@ namespace JiraKanbanMetrics.Core
             {
                 var chart = new Chart();
                 var chartArea = new ChartArea();
-                var start = DoneIssues.Min(_ => _.Done);
-                var numberOfDays = (int) (DoneIssues.Max(_ => _.Done) - start).TotalDays + 1;
+                var start = DoneIssues.Length > 0 ? DoneIssues.Min(_ => _.Done) : StartDate;
+                var max = DoneIssues.Length > 0 ? DoneIssues.Max(_ => _.Done) : EndDate;
+                var numberOfDays = (int) (max - start).TotalDays + 1;
                 var xindex = Enumerable.Range(0, numberOfDays).Select(i => start.AddDays(i).ToString("yyyy-MM-dd"))
                     .Distinct().OrderBy(_ => _).ToList();
                 chart.ChartAreas.Add(chartArea);
@@ -256,13 +259,12 @@ namespace JiraKanbanMetrics.Core
                     series.CustomProperties = "IsXAxisQuantitative=True";
                     series.Legend = "legend";
                     series.LegendText = "Tasks";
-                    series.Color = System.Drawing.Color.Blue;
+                    series.Color = Color.Blue;
                     chart.Series.Add(series);
                 }
                 {
                     var tickets = controlChart.Where(_ => _.IssueType.IsDefect(Config));
-                    var series = new Series();
-                    series.ChartType = SeriesChartType.Point;
+                    var series = new Series {ChartType = SeriesChartType.Point};
                     foreach (var g in tickets)
                         series.Points.Add(new DataPoint()
                         {
@@ -273,14 +275,14 @@ namespace JiraKanbanMetrics.Core
                     series.CustomProperties = "IsXAxisQuantitative=True";
                     series.Legend = "legend";
                     series.LegendText = "Issues";
-                    series.Color = System.Drawing.Color.Red;
+                    series.Color = Color.Red;
                     chart.Series.Add(series);
                 }
 
 
-                var avg = controlChart.Average(_ => _.LeadTime);
-                var p95 = controlChart.Percentile(95, _ => _.LeadTime);
-                var p90 = controlChart.Percentile(90, _ => _.LeadTime);
+                var avg = controlChart.Count > 0 ? controlChart.Average(_ => _.LeadTime) : 0;
+                var p95 = controlChart.Count > 0 ? controlChart.Percentile(95, _ => _.LeadTime) : 0;
+                var p90 = controlChart.Count > 0 ? controlChart.Percentile(90, _ => _.LeadTime) : 0;
                 chartArea.AxisY.StripLines.Add(CreateStripLine(avg, Color.Blue, $"Average ({avg:0})"));
                 chartArea.AxisY.StripLines.Add(CreateStripLine(p95, Color.Violet, $"95th percentile ({p95:0})"));
                 chartArea.AxisY.StripLines.Add(CreateStripLine(p90, Color.Brown, $"90th percentile ({p90:0})"));
@@ -308,8 +310,8 @@ namespace JiraKanbanMetrics.Core
                 .OrderBy(_ => _["Week"])
                 .ToList();
             {
-                var floor = cumulativeFlow.Min(_ => (int)_["Done"]);
-                var keys = cumulativeFlow.First().Keys.Except(new[] { "Week" }).Reverse().ToList();
+                var floor = cumulativeFlow.Count > 0 ? cumulativeFlow.Min(_ => (int)_["Done"]) : 0;
+                var keys = cumulativeFlow.Count > 0 ? cumulativeFlow.First().Keys.Except(new[] { "Week" }).Reverse().ToList() : new List<string>();
                 var chart = new Chart();
                 var chartArea = new ChartArea();
                 chart.ChartAreas.Add(chartArea);
