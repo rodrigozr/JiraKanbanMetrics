@@ -9,6 +9,7 @@ Extract Kanban metrics from Jira Agile boards using the REST API
    * [Sample generated charts](#sample-generated-charts)
    * [Configuration File](#configuration-file)
    * [Command-line options](#command-line-options)
+   * [Kanban Board requirements](#kanban-board-requirements)
 
 # Quick start step-by-step
 ## Step 1: Generate a configuration file
@@ -88,7 +89,7 @@ The configuration file used by JiraKanbanMetrics.exe contains the following opti
     Your Jira encrypted password. This configuration can only be set be using the `configure` command-line argument. The tool will automatically encrypt your password and store it on this configuration.
     
     If this configuration is not set, your password will be requested when running the tool.
-  * BoardId
+  * **BoardId**
   
     The default Jira Kanban Board ID to use when generating metrics. Please notice that you can override this by using the `--BoardId` command-line option.
   * **QuickFilters**
@@ -196,3 +197,16 @@ Copyright c 2018 Rodrigo Zechin Rosauro
 
   --version         Display version information.
 ```
+
+# Kanban Board requirements
+
+In order to generate all the charts correctly, the following requirements must be met by the Kanban Board:
+  1. It must have a columns that represents your "backlog", "pool of ideas" or similar concepts (essentially, all the stuff that you currently have cataloged but not yet commited to work on. (See the configuration option **BacklogColumnName**)
+  2. It must have at least one column that represents your commitment point. This is when you have selected/prioritzed a work item to enter your Kanban system. (See the configuration option **CommitmentStartColumns**)
+  3. It must have at least one column that represents "done". (See the configuration option **DoneColumns**)
+  4. It should have individual columns for your "queues". This is optional, but it won't be able to calculate the flow efficiency without this information. (See the configuration option **QueueColumns**)
+  
+**Tips**
+  * You can create a different view of you existing Jira Kanban Boards for the sole purpose of extracting metrics. Your team does not need to be tied to the restrictions of this tool.
+  * For optimal performance, include in your Jira JQL filder an instruction to ignore items old and the time range that you are interested on. This will limit the number of issues that the tool need to analyse for metrics.
+  * Feel free to submit pull-requests with proposed enhancements
