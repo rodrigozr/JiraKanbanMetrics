@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27130.2003
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JiraKanbanMetrics", "JiraKanbanMetrics\JiraKanbanMetrics.csproj", "{C5682EA8-02B6-4BBB-8B17-DDF8E900BED5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JiraKanbanMetrics", "src\JiraKanbanMetrics\JiraKanbanMetrics.csproj", "{C5682EA8-02B6-4BBB-8B17-DDF8E900BED5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JiraKanbanMetrics.Core", "JiraKanbanMetrics.Core\JiraKanbanMetrics.Core.csproj", "{106BFE67-0C0A-4D9C-BB65-AA09356E42C7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JiraKanbanMetrics.Core", "src\JiraKanbanMetrics.Core\JiraKanbanMetrics.Core.csproj", "{106BFE67-0C0A-4D9C-BB65-AA09356E42C7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
