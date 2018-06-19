@@ -1,6 +1,8 @@
 # JiraKanbanMetrics
 Extract Kanban metrics from Jira Agile boards using the REST API
 
+[Download](https://github.com/rodrigozr/JiraKanbanMetrics/releases)
+
 # Table of contents
 
    * [Quick start step-by-step](#quick-start-step-by-step)
