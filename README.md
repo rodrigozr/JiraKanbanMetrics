@@ -1,7 +1,13 @@
 # JiraKanbanMetrics
 Extract Kanban metrics from Jira Agile boards using the REST API
 
-# Quick start step-bystep
+# Table of contents
+
+   * [Quick start step-by-step](#quick-start-step-by-step)
+   * [Sample generated charts](#sample-generated-charts)
+   * [Configuration File](#configuration-file)
+
+# Quick start step-by-step
 ## Step 1: Generate a configuration file
 
 `JiraKanbanMetrics.exe configure --ConfigFile config.xml --JiraUsername MYUSER --JiraInstanceBaseAddress https://jira.YOURCOMPANY.com/jira/ --BoardId 123456`
@@ -60,3 +66,62 @@ This will connect to your Jira instance, extract metrics and generate a set of "
 ## CumulativeFlowDiagramChart.png
 ![CumulativeFlowDiagramChart](images/CumulativeFlowDiagramChart.png)
 
+# Configuration File
+The configuration file used by JiraKanbanMetrics.exe contains the following options:
+  * **JiraInstanceBaseAddress**
+    
+    The base URL of the Jira instance. This is a mandatory configuration.
+  * **JiraUsername**
+    
+    Your Jira username. This is a mandatory configuration.
+  * **JiraPassword**
+    
+    Your Jira encrypted password. This configuration can only be set be using the `configure` command-line argument. The tool will automatically encrypt your password and store it on this configuration.
+    
+    If this configuration is not set, your password will be requested when running the tool.
+  * BoardId
+  
+    The default Jira Kanban Board ID to use when generating metrics. Please notice that you can override this by using the `--BoardId` command-line option.
+  * **QuickFilters**
+  
+    List of Jira "quick filter IDs" to use during the metrics extraction.
+  * **DefectIssueTypes**
+  
+    Comma-separated list of issue types to consider as **Defect**.
+    **Default: Defect**
+  * **IgnoredIssueTypes**
+  
+    Comma-separated list of issue types to ignore and exclude from the metrics.
+  * **IgnoredIssueKeys**
+  
+    Comma-separated list of issue keys to ignore and exclude from the metrics.
+  * **QueueColumns**
+  
+    Comma-separated list of column names to consider as "queues" in the Kanban Board.
+    **Default: To Do**
+  * **CommitmentStartColumns**
+  
+    Comma-separated list of column names to consider as the "commitment start point" in the Kanban Board.
+    
+    If more than one column is configured, then the first one that the issue has passed thru will be used.
+    **Default: To Do**
+  * **InProgressStartColumns**
+  
+    Comma-separated list of column names to consider as the "working start point" in the Kanban Board.
+    
+    If more than one column is configured, then the first one that the issue has passed thru will be used.
+    **Default: In progress**
+  * **DoneColumns**
+  
+    Comma-separated list of column names to consider as the "Done" in the Kanban Board.
+    
+    If more than one column is configured, then the first one that the issue has passed thru will be used.
+    **Default: Done**
+  * **BacklogColumnName**
+  
+    Name of your "Backlog" column in the Kanban board. This is only used for the "CDF" chart.
+    **Default: Backlog**
+  * **MonthsToAnalyse**
+  
+    Number of months back in time to consider when analysing data.
+    **Default: 5**
