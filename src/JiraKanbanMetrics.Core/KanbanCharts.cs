@@ -69,7 +69,7 @@ namespace JiraKanbanMetrics.Core
         /// <summary>
         /// Chart - CFD
         /// </summary>
-        public Chart CummulativeFlowDiagramChart { get; set; }
+        public Chart CumulativeFlowDiagramChart { get; set; }
 
         /// <summary>
         /// Create charts for the given configuration and list of issues
@@ -376,7 +376,7 @@ namespace JiraKanbanMetrics.Core
                 chartArea.AxisX.LabelStyle.Angle = -65;
                 chartArea.AxisY.IntervalAutoMode = IntervalAutoMode.VariableCount;
                 chartArea.AxisY.Title = "Number of items";
-                CummulativeFlowDiagramChart = chart;
+                CumulativeFlowDiagramChart = chart;
             }
         }
 
