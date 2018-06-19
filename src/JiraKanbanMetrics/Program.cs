@@ -7,7 +7,6 @@ using System.Linq;
 using System.Reflection;
 using System.Security;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms.DataVisualization.Charting;
 using CommandLine;
 using JiraKanbanMetrics.Core;
@@ -58,7 +57,7 @@ namespace JiraKanbanMetrics
             SaveChart(opts, charts.WeeklyThroughputHistogramChart, "WeeklyThroughputHistogramChart.png");
             SaveChart(opts, charts.WeeklyThroughputChart, "WeeklyThroughputChart.png");
             SaveChart(opts, charts.LeadTimeControlChart, "LeadTimeControlChart.png");
-            SaveChart(opts, charts.CummulativeFlowDiagramChart, "CummulativeFlowDiagramChart.png");
+            SaveChart(opts, charts.CumulativeFlowDiagramChart, "CumulativeFlowDiagramChart.png");
             
             Console.WriteLine("Success !!!");
             
