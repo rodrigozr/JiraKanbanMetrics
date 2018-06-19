@@ -45,13 +45,19 @@ Edit the generated `config.xml` file, which should look like this:
   <MonthsToAnalyse>5</MonthsToAnalyse>
 </JiraKanbanConfig>
 ```
-Please refer to the "Configuration File" section for the details about each configuration option.
+Please refer to the [Configuration File](#configuration-file) section for the details about each configuration option.
 
 ## Step 3: Run it
 
 `JiraKanbanMetrics.exe generate --ConfigFile config.xml`
 
-This will connect to your Jira instance, extract metrics and generate a set of ".png" files on your current working directory.
+This will connect to your Jira instance, extract metrics and generate a set of **".png"** files on your current working directory:
+  * FlowEfficiencyChart.png
+  * WeeklyThroughputChart.png
+  * WeeklyThroughputHistogramChart.png
+  * LeadTimeControlChart.png
+  * LeadTimeHistogramChart.png
+  * CumulativeFlowDiagramChart.png
 
 # Sample generated charts
 
