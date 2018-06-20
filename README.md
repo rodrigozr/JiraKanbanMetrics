@@ -1,5 +1,5 @@
 # JiraKanbanMetrics
-Extract Kanban metrics from Jira Agile boards using the REST API
+Simple command-line tool to extract Kanban metrics from Jira Agile boards using the RESTful APIs and generate charts for those metrics.
 
 [Download](https://github.com/rodrigozr/JiraKanbanMetrics/releases)
 
@@ -14,11 +14,13 @@ Extract Kanban metrics from Jira Agile boards using the REST API
 # Quick start step-by-step
 ## Step 1: Generate a configuration file
 
-`JiraKanbanMetrics.exe configure --ConfigFile config.xml --JiraUsername MYUSER --JiraInstanceBaseAddress https://jira.YOURCOMPANY.com/jira/ --BoardId 123456`
+```console
+JiraKanbanMetrics.exe configure --ConfigFile config.xml --JiraUsername MYUSER --JiraInstanceBaseAddress https://jira.YOURCOMPANY.com/jira/ --BoardId 123456
+```
 
 This will prompt for your Jira password:
 
-```
+```console
 Enter the Jira password for user 'MYUSER':
 *********
 Configuration file generated at: config.xml
@@ -117,7 +119,7 @@ The configuration file used by JiraKanbanMetrics.exe contains the following opti
     **Default: To Do**
   * **InProgressStartColumns**
   
-    Comma-separated list of column names to consider as the "working start point" in the Kanban Board.
+    Comma-separated list of column names to consider as the "work start point" in the Kanban Board.
     
     If more than one column is configured, then the first one that the issue has passed thru will be used.
     **Default: In progress**
@@ -139,7 +141,7 @@ The configuration file used by JiraKanbanMetrics.exe contains the following opti
 # Command-line options
 
 **help:**
-```
+```console
 JiraKanbanMetrics.exe help
 JiraKanbanMetrics 1.0.0.0
 Copyright c 2018 Rodrigo Zechin Rosauro
@@ -154,7 +156,7 @@ Copyright c 2018 Rodrigo Zechin Rosauro
 ```
 
 **configure:**
-```
+```console
 JiraKanbanMetrics.exe help configure
 JiraKanbanMetrics 1.0.0.0
 Copyright c 2018 Rodrigo Zechin Rosauro
@@ -176,7 +178,7 @@ Copyright c 2018 Rodrigo Zechin Rosauro
 ```
 
 **generate:**
-```
+```console
 JiraKanbanMetrics.exe help generate
 JiraKanbanMetrics 1.0.0.0
 Copyright c 2018 Rodrigo Zechin Rosauro
@@ -201,12 +203,12 @@ Copyright c 2018 Rodrigo Zechin Rosauro
 # Kanban Board requirements
 
 In order to generate all the charts correctly, the following requirements must be met by the Kanban Board:
-  1. It must have a columns that represents your "backlog", "pool of ideas" or similar concepts (essentially, all the stuff that you currently have cataloged but not yet commited to work on. (See the configuration option **BacklogColumnName**)
+  1. It must have a columns that represents your "backlog", "pool of ideas" or similar concepts... essentially, all the stuff that you currently have cataloged but not yet commited to work on. (See the configuration option **BacklogColumnName**)
   2. It must have at least one column that represents your commitment point. This is when you have selected/prioritzed a work item to enter your Kanban system. (See the configuration option **CommitmentStartColumns**)
   3. It must have at least one column that represents "done". (See the configuration option **DoneColumns**)
   4. It should have individual columns for your "queues". This is optional, but it won't be able to calculate the flow efficiency without this information. (See the configuration option **QueueColumns**)
   
 **Tips**
   * You can create a different view of you existing Jira Kanban Boards for the sole purpose of extracting metrics. Your team does not need to be tied to the restrictions of this tool.
-  * For optimal performance, include in your Jira JQL filder an instruction to ignore items old and the time range that you are interested on. This will limit the number of issues that the tool need to analyse for metrics.
+  * For optimal performance, include in your Jira JQL filter an instruction to ignore items older than the time range that you are interested on. This will limit the number of issues that the tool need to analyse for metrics.
   * Feel free to submit pull-requests with proposed enhancements
